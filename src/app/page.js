@@ -54,6 +54,12 @@ export default function Home() {
               <div className="flex justify-between items-center">
                 <div>
                   <h2 className="text-2xl font-semibold mb-1 text-gray-800">{event.name}</h2>
+                  <div className="flex items-center text-sm text-gray-500 font-medium">
+                    <span className="bg-pastel-green/20 text-pastel-green-dark px-2 py-0.5 rounded-full mr-2">
+                      {event.vote_count} {event.vote_count === 1 ? 'voto' : 'votos'}
+                    </span>
+                    <span>registrados</span>
+                  </div>
                 </div>
                 <div className="text-accent">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">

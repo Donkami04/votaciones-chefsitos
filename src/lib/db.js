@@ -16,7 +16,13 @@ export const getEvents = async () => {
     // or we could fetch them from a table if we create one.
     // The user mentioned a "events" table.
     try {
-        const res = await query('SELECT * FROM events ORDER BY id ASC');
+        const res = await query(`
+            SELECT e.*, COUNT(v.id)::int as vote_count 
+            FROM events e 
+            LEFT JOIN votes v ON e.id = v.event_id 
+            GROUP BY e.id 
+            ORDER BY e.id ASC
+        `);
         return res.rows;
     } catch (error) {
         console.error('Error fetching events:', error);
