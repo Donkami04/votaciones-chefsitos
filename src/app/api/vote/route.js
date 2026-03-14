@@ -31,8 +31,11 @@ export async function POST(request) {
     });
 
     return NextResponse.json({ message: 'Voto registrado con éxito' });
-  } catch (error) {
+    } catch (error) {
     console.error('API Error:', error);
+    if (error.message === 'LIMIT_REACHED') {
+      return NextResponse.json({ error: 'Límite máximo de votos alcanzado para este evento' }, { status: 403 });
+    }
     // Explicit handle for unique constraint violation if race condition occurs
     if (error.code === '23505') {
        return NextResponse.json({ error: 'Ya calificaste este evento 🎉' }, { status: 400 });

@@ -22,12 +22,13 @@ export default function EventVote() {
   const [success, setSuccess] = useState(false);
   const [hasVoted, setHasVoted] = useState(false);
   const [eventName, setEventName] = useState('');
+  const [isLimitReached, setIsLimitReached] = useState(false);
 
   useEffect(() => {
     const deviceId = localStorage.getItem("device_id");
     if (!deviceId) return;
 
-    // Fetch initial data: check if voted AND get event name
+    // Fetch initial data: check if voted AND get event name/meta
     Promise.all([
       fetch(`/api/vote?eventId=${eventId}&deviceId=${deviceId}`).then(res => res.json()),
       fetch('/api/events').then(res => res.json())
@@ -36,10 +37,15 @@ export default function EventVote() {
       if (voteData.alreadyVoted) {
         setHasVoted(true);
       }
+      
       const currentEvent = eventsData.find(e => e.id.toString() === eventId.toString());
       console.log(currentEvent)
       if (currentEvent) {
         setEventName(currentEvent.name);
+        // Assuming 4 is the limit (should match MAX_VOTES_PER_EVENT in db.js)
+        if (currentEvent.vote_count >= 4) {
+          setIsLimitReached(true);
+        }
       }
       
       setLoading(false);
@@ -95,16 +101,30 @@ export default function EventVote() {
         Volver
       </Link>
 
-      <div className="glass-card p-8 animate-fade-in">
+      <div className="glass-card p-8 animate-fade-in text-center">
         {hasVoted ? (
-          <div className="text-center py-10">
+          <div className="py-10">
             <div className="text-6xl mb-6">🎉</div>
             <h2 className="text-3xl font-bold mb-4 text-gray-800">¡Ya calificaste este evento!</h2>
             <p className="text-gray-500 mb-8">Gracias por tu participación. Tus votos ayudan a mejorar cada evento.</p>
             <Link href="/" className="btn-primary inline-block">Ver otros eventos</Link>
           </div>
+        ) : isLimitReached ? (
+          <div className="py-10">
+            <div className="text-6xl mb-6">🔒</div>
+            <h2 className="text-3xl font-bold mb-4 text-gray-800 uppercase tracking-tighter text-pink-500">
+              Límite alcanzado
+            </h2>
+            <p className="text-gray-600 mb-8 text-lg font-medium">
+              Este evento ya tiene el máximo de 4 votos permitidos.
+            </p>
+            <div className="bg-pink-50 border border-pink-100 p-4 rounded-xl mb-8">
+              <p className="text-pink-600 font-bold italic">"Límite máximo de votos alcanzado"</p>
+            </div>
+            <Link href="/" className="btn-primary inline-block">Volver al inicio</Link>
+          </div>
         ) : (
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} className="text-left">
             <h1 className="text-3xl font-bold mb-8 tracking-tight text-gray-800">Califica a <span className="text-gradient">{eventName || `Evento ${eventId}`}</span></h1>
             
             <div className="space-y-10">

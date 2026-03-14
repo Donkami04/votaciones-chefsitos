@@ -2,6 +2,8 @@ import { Pool } from 'pg';
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
+export const MAX_VOTES_PER_EVENT = 4;
+
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: {
@@ -45,6 +47,13 @@ export const checkVote = async (eventId, deviceIdHash) => {
 
 export const submitVote = async (voteData) => {
     const { eventId, deviceId, creativity, flavor, presentation, activity } = voteData;
+    
+    // Final server-side check before physical insert
+    const countRes = await query('SELECT COUNT(*) as count FROM votes WHERE event_id = $1', [eventId]);
+    if (parseInt(countRes.rows[0].count) >= MAX_VOTES_PER_EVENT) {
+        throw new Error('LIMIT_REACHED');
+    }
+
     await query(
         'INSERT INTO votes (event_id, device_id, creativity, flavor, presentation, activity) VALUES ($1, $2, $3, $4, $5, $6)',
         [eventId, deviceId, creativity, flavor, presentation, activity]
