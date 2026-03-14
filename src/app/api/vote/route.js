@@ -42,6 +42,7 @@ export async function POST(request) {
 }
 
 export async function GET(request) {
+  try {
     const { searchParams } = new URL(request.url);
     const eventId = searchParams.get('eventId');
     const deviceId = searchParams.get('deviceId');
@@ -58,4 +59,8 @@ export async function GET(request) {
 
     const alreadyVoted = await checkVote(eventId, deviceIdHash);
     return NextResponse.json({ alreadyVoted });
+  } catch (error) {
+    console.error('API GET Vote Error:', error);
+    return NextResponse.json({ error: 'Internal Server Error', details: error.message }, { status: 500 });
+  }
 }

@@ -21,21 +21,30 @@ export default function EventVote() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [hasVoted, setHasVoted] = useState(false);
+  const [eventName, setEventName] = useState('');
 
   useEffect(() => {
     const deviceId = localStorage.getItem("device_id");
     if (!deviceId) return;
 
-    // Check if already voted
-    fetch(`/api/vote?eventId=${eventId}&deviceId=${deviceId}`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.alreadyVoted) {
-          setHasVoted(true);
-        }
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
+    // Fetch initial data: check if voted AND get event name
+    Promise.all([
+      fetch(`/api/vote?eventId=${eventId}&deviceId=${deviceId}`).then(res => res.json()),
+      fetch('/api/events').then(res => res.json())
+    ])
+    .then(([voteData, eventsData]) => {
+      if (voteData.alreadyVoted) {
+        setHasVoted(true);
+      }
+      const currentEvent = eventsData.find(e => e.id.toString() === eventId.toString());
+      console.log(currentEvent)
+      if (currentEvent) {
+        setEventName(currentEvent.name);
+      }
+      
+      setLoading(false);
+    })
+    .catch(() => setLoading(false));
   }, [eventId]);
 
   const handleSubmit = async (e) => {
@@ -96,7 +105,7 @@ export default function EventVote() {
           </div>
         ) : (
           <form onSubmit={handleSubmit}>
-            <h1 className="text-3xl font-bold mb-8 tracking-tight text-gray-800">Califica el <span className="text-gradient">Evento {eventId}</span></h1>
+            <h1 className="text-3xl font-bold mb-8 tracking-tight text-gray-800">Califica a <span className="text-gradient">{eventName || `Evento ${eventId}`}</span></h1>
             
             <div className="space-y-10">
               {Object.keys(scores).map((aspect) => (
@@ -111,7 +120,7 @@ export default function EventVote() {
                     type="range"
                     min="1"
                     max="5"
-                    step="0.5"
+                    step="0.1"
                     value={scores[aspect]}
                     onChange={(e) => setScores({ ...scores, [aspect]: parseFloat(e.target.value) })}
                   />

@@ -1,7 +1,12 @@
 import { Pool } from 'pg';
 
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false
+  }
 });
 
 export const query = (text, params) => pool.query(text, params);
@@ -17,9 +22,9 @@ export const getEvents = async () => {
         console.error('Error fetching events:', error);
         // Fallback or return empty
         return [
-            { id: 1, name: "Evento 1" },
-            { id: 2, name: "Evento 2" },
-            { id: 3, name: "Evento 3" }
+            { id: 1, name: "Flor y Jorge" },
+            { id: 2, name: "Yas y Alex" },
+            { id: 3, name: "May y Cami" }
         ];
     }
 };

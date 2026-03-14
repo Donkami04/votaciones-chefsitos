@@ -1,0 +1,27 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "Aiven Cloud DB",
+      "Group": "Servers",
+      "Host": "desafio-chefsitos-marketplace-db.g.aivencloud.com",
+      "Port": 18570,
+      "MaintenanceDB": "defaultdb",
+      "Username": "avnadmin",
+      "SSLMode": "require",
+      "SSLCompression": 0,
+      "SSLCert": "",
+      "SSLKey": "",
+      "SSLRootCert": "",
+      "SSLCrl": "",
+      "SSLPassword": "",
+      "SSLTunnel": "none",
+      "SSLTunnelHost": "",
+      "SSLTunnelPort": 22,
+      "SSLTunnelUser": "",
+      "SSLTunnelPassword": "",
+      "SSLTunnelKey": "",
+      "SSLTunnelKeepAlive": 600,
+      "SavePassword": true
+    }
+  }
+}
