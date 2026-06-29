@@ -59,3 +59,33 @@ export const submitVote = async (voteData) => {
         [eventId, deviceId, creativity, flavor, presentation, activity]
     );
 };
+
+export const getResults = async () => {
+    try {
+        const res = await query(`
+            SELECT 
+                e.id, 
+                e.name,
+                COUNT(v.id)::int as vote_count,
+                COALESCE(SUM(v.creativity + v.flavor + v.presentation + v.activity), 0)::int as total_score,
+                COALESCE(AVG(v.creativity + v.flavor + v.presentation + v.activity), 0)::float as average_score
+            FROM events e 
+            LEFT JOIN votes v ON e.id = v.event_id 
+            GROUP BY e.id, e.name
+            ORDER BY total_score DESC
+        `);
+        
+        const results = res.rows;
+        if (results.length > 0) {
+            const maxScore = Math.max(...results.map(r => r.total_score));
+            results.forEach(r => {
+                r.is_winner = (r.total_score === maxScore && r.total_score > 0);
+            });
+        }
+
+        return results;
+    } catch (error) {
+        console.error('Error fetching results:', error);
+        return [];
+    }
+};
