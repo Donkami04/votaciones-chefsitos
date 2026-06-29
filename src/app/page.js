@@ -128,32 +128,95 @@ export default function Home() {
               <div className="flex justify-center py-12">
                 <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600"></div>
               </div>
-            ) : (
-              <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
-                {results.map((result) => (
-                  <div key={result.id} className={`p-5 rounded-2xl border-2 transition-all ${result.is_winner ? 'border-yellow-400 bg-gradient-to-br from-yellow-50 to-orange-50 shadow-sm scale-[1.02]' : 'border-gray-100 bg-white hover:border-gray-200'}`}>
-                    <div className="flex justify-between items-center mb-4">
-                      <h3 className="font-bold text-gray-800 text-lg flex items-center">
-                        {result.is_winner && <span className="mr-2 text-2xl drop-shadow-sm" title="Ganador">👑</span>}
-                        {result.name}
-                      </h3>
-                      <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100">
-                        {result.vote_count} votos
-                      </span>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3 text-sm">
-                      <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-sm flex flex-col items-center">
-                        <p className="text-gray-500 text-xs font-medium mb-1">Puntaje Total</p>
-                        <p className="font-black text-xl text-gray-800">{result.total_score}</p>
+                        ) : (
+              <>
+                {(() => {
+                  const winners = results.filter(r => r.is_winner);
+                  const hasVotes = results.some(r => r.vote_count > 0);
+                  
+                  if (!hasVotes) {
+                    return (
+                      <div className="mb-6 p-5 rounded-2xl bg-gray-50 text-center border border-dashed border-gray-200 animate-fade-in">
+                        <div className="text-3xl mb-2">🍽️</div>
+                        <p className="text-gray-500 font-medium">Aún no se han registrado votos.</p>
+                        <p className="text-gray-400 text-xs mt-1">¡Sé el primero en calificar un evento!</p>
                       </div>
-                      <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-sm flex flex-col items-center">
-                        <p className="text-gray-500 text-xs font-medium mb-1">Promedio</p>
-                        <p className="font-black text-xl text-indigo-600">{Number(result.average_score).toFixed(1)}</p>
+                    );
+                  }
+                  
+                  if (winners.length > 0) {
+                    return (
+                      <div className="mb-6 p-5 rounded-2xl bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 text-center border-2 border-yellow-400 shadow-md relative overflow-hidden animate-pulse-slow animate-fade-in">
+                        <div className="absolute inset-0 bg-white/15 mix-blend-overlay pointer-events-none"></div>
+                        <div className="relative z-10">
+                          <div className="text-4xl mb-2 drop-shadow-sm animate-bounce-slow">🏆</div>
+                          <p className="text-xs uppercase font-extrabold tracking-widest text-amber-900 mb-1">
+                            {winners.length > 1 ? '¡Empate en Primer Lugar!' : '¡Líder del Desafío!'}
+                          </p>
+                          <h3 className="text-2xl font-black text-amber-950 mb-1 drop-shadow-sm leading-tight">
+                            {winners.map(w => w.name).join(' y ')}
+                          </h3>
+                          <p className="text-sm font-semibold text-amber-900">
+                            Acumuló <span className="font-black text-lg bg-white/40 px-2 py-0.5 rounded-lg">{winners[0].total_score}</span> puntos
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  }
+                  
+                  return null;
+                })()}
+
+                <div className="space-y-4 max-h-[45vh] overflow-y-auto pr-2 custom-scrollbar">
+                  {results.map((result) => (
+                    <div key={result.id} className={`p-5 rounded-2xl border-2 transition-all ${result.is_winner ? 'border-yellow-400 bg-gradient-to-br from-yellow-50 to-orange-50 shadow-sm scale-[1.02]' : 'border-gray-100 bg-white hover:border-gray-200'}`}>
+                      <div className="flex justify-between items-center mb-4">
+                        <h3 className="font-bold text-gray-800 text-lg flex items-center">
+                          {result.is_winner && <span className="mr-2 text-2xl drop-shadow-sm" title="Ganador">👑</span>}
+                          {result.name}
+                        </h3>
+                        <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100">
+                          {result.vote_count} {result.vote_count === 1 ? 'voto' : 'votos'}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3 text-sm">
+                        <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-sm flex flex-col items-center">
+                          <p className="text-gray-500 text-xs font-medium mb-1">Puntaje Total</p>
+                          <p className="font-black text-xl text-gray-800">{result.total_score}</p>
+                        </div>
+                        <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-sm flex flex-col items-center">
+                          <p className="text-gray-500 text-xs font-medium mb-1">Promedio</p>
+                          <p className="font-black text-xl text-indigo-600">{Number(result.average_score).toFixed(1)}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="mt-4 pt-4 border-t border-gray-100">
+                        <p className="text-xs font-extrabold text-gray-400 uppercase tracking-wider mb-2.5 text-center">
+                          Promedio por Categoría
+                        </p>
+                        <div className="grid grid-cols-2 gap-2 text-xs">
+                          <div className="bg-gray-50 p-2.5 rounded-xl flex justify-between items-center">
+                            <span className="text-gray-500 font-medium">🎨 Creatividad</span>
+                            <span className="font-bold text-gray-850">{Number(result.avg_creativity).toFixed(1)}</span>
+                          </div>
+                          <div className="bg-gray-50 p-2.5 rounded-xl flex justify-between items-center">
+                            <span className="text-gray-500 font-medium">😋 Sabor</span>
+                            <span className="font-bold text-gray-850">{Number(result.avg_flavor).toFixed(1)}</span>
+                          </div>
+                          <div className="bg-gray-50 p-2.5 rounded-xl flex justify-between items-center">
+                            <span className="text-gray-500 font-medium">✨ Presentación</span>
+                            <span className="font-bold text-gray-850">{Number(result.avg_presentation).toFixed(1)}</span>
+                          </div>
+                          <div className="bg-gray-50 p-2.5 rounded-xl flex justify-between items-center">
+                            <span className="text-gray-500 font-medium">🎮 Actividad</span>
+                            <span className="font-bold text-gray-850">{Number(result.avg_activity).toFixed(1)}</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              </>
             )}
           </div>
         </div>

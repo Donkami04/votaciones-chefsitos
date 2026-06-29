@@ -68,7 +68,11 @@ export const getResults = async () => {
                 e.name,
                 COUNT(v.id)::int as vote_count,
                 COALESCE(SUM(v.creativity + v.flavor + v.presentation + v.activity), 0)::int as total_score,
-                COALESCE(AVG(v.creativity + v.flavor + v.presentation + v.activity), 0)::float as average_score
+                COALESCE(AVG(v.creativity + v.flavor + v.presentation + v.activity), 0)::float as average_score,
+                COALESCE(AVG(v.creativity), 0)::float as avg_creativity,
+                COALESCE(AVG(v.flavor), 0)::float as avg_flavor,
+                COALESCE(AVG(v.presentation), 0)::float as avg_presentation,
+                COALESCE(AVG(v.activity), 0)::float as avg_activity
             FROM events e 
             LEFT JOIN votes v ON e.id = v.event_id 
             GROUP BY e.id, e.name
